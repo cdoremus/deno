@@ -5,9 +5,6 @@ use std::io::Write;
 use termcolor::Color::{Ansi256, Black, Blue, Cyan, Green, Red, White, Yellow};
 use termcolor::{Ansi, ColorSpec, WriteColor};
 
-#[cfg(windows)]
-use termcolor::{BufferWriter, ColorChoice};
-
 lazy_static::lazy_static! {
   static ref NO_COLOR: bool = std::env::var_os("NO_COLOR").is_some();
 }
@@ -18,7 +15,18 @@ pub fn use_color() -> bool {
 
 #[cfg(windows)]
 pub fn enable_ansi() {
-  BufferWriter::stdout(ColorChoice::AlwaysAnsi);
+  use termcolor::BufferWriter;
+  use termcolor::ColorChoice;
+  use winapi::um::processenv::GetStdHandle;
+  use winapi::um::winbase::STD_ERROR_HANDLE;
+  use winapi::um::winbase::STD_OUTPUT_HANDLE;
+
+  if unsafe { !GetStdHandle(STD_OUTPUT_HANDLE).is_null() } {
+    BufferWriter::stdout(ColorChoice::AlwaysAnsi);
+  }
+  if unsafe { !GetStdHandle(STD_ERROR_HANDLE).is_null() } {
+    BufferWriter::stderr(ColorChoice::AlwaysAnsi);
+  }
 }
 
 fn style<S: AsRef<str>>(s: S, colorspec: ColorSpec) -> impl fmt::Display {
