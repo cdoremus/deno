@@ -230,9 +230,10 @@ jobs:
             export RUSTDOCFLAGS="\$RUSTFLAGS"
             unset RUSTC_FORCE_INCREMENTAL
 
-            # C build configuration.
-            export CC=clang-13        # Compile c source files with clang.
-            export CFLAGS=-flto=thin  # Tell clang to produce llvm bitcode.
+            # Compile c source files with clang.
+            export CC=clang-13
+            # Tell clang to use lld and produce llvm bitcode.
+            export CFLAGS="-fuse-ld=lld -flto=thin"
 
             # Miscellaneous flags.
             export CARGO_TERM_COLOR=always
