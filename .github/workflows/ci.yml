@@ -194,6 +194,11 @@ jobs:
           sudo chroot /sysroot apt install --no-install-recommends -y \
                                            clang-13 lld-13
 
+          # Redirect ld invocations to ld.lld-13 inside the chroot environment.
+          # Setting the 'LD' environment variable doesn't always work.
+          sudo chroot /sysroot bash -c \
+                                    'ln -f "$(which ld.lld-13)" "$(which ld)"'
+
           # Make rust available inside the chroot environment.
           sudo mkdir -p /sysroot/usr/share/rust
           sudo mount --rbind /usr/share/rust /sysroot/usr/share/rust
@@ -230,10 +235,10 @@ jobs:
             export RUSTDOCFLAGS="\$RUSTFLAGS"
             unset RUSTC_FORCE_INCREMENTAL
 
-            # Compile c source files with clang.
-            export CC=clang-13
-            # Tell clang to use lld and produce llvm bitcode.
-            export CFLAGS="-fuse-ld=lld -flto=thin"
+            # C build configuration.
+            export CC=clang-13        # Compile c source files with clang.
+            export CFLAGS=-flto=thin  # Tell clang to produce llvm bitcode.
+            export LD=ld.lld-13       # Use the lld linker.
 
             # Miscellaneous flags.
             export CARGO_TERM_COLOR=always
