@@ -184,15 +184,15 @@ jobs:
           sudo ln --force --target /sysroot/etc \
                   /etc/passwd /etc/shadow /etc/group /etc/gshadow
 
-          # Install clang-12 and lld-12 into the chroot environment.
-          echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-12 main" |
-            sudo dd of=/sysroot/etc/apt/sources.list.d/llvm-toolchain-bionic-12.list
+          # Install clang-13 and lld-13 into the chroot environment.
+          echo "deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-13 main" |
+            sudo dd of=/sysroot/etc/apt/sources.list.d/llvm-toolchain-bionic-13.list
           curl https://apt.llvm.org/llvm-snapshot.gpg.key |
             gpg --dearmor                                 |
             sudo dd of=/sysroot/etc/apt/trusted.gpg.d/llvm-snapshot.gpg
           sudo chroot /sysroot apt update -y
           sudo chroot /sysroot apt install --no-install-recommends -y \
-                                           clang-12 lld-12
+                                           clang-13 lld-13
 
           # Make rust available inside the chroot environment.
           sudo mkdir -p /sysroot/usr/share/rust
@@ -221,8 +221,8 @@ jobs:
             export CARGO_PROFILE_RELEASE_LTO=false
             export RUSTFLAGS="
               -C linker-plugin-lto=true
-              -C linker=clang-12
-              -C link-arg=-fuse-ld=lld-12
+              -C linker=clang-13
+              -C link-arg=-fuse-ld=lld-13
               -C link-arg=-Wl,--thinlto-cache-dir=$(pwd)/target/release/lto-cache
               -C link-arg=-Wl,--thinlto-cache-policy,cache_size_bytes=700m
               -D warnings
@@ -231,7 +231,7 @@ jobs:
             unset RUSTC_FORCE_INCREMENTAL
 
             # C build configuration.
-            export CC=clang-12        # Compile c source files with clang.
+            export CC=clang-13        # Compile c source files with clang.
             export CFLAGS=-flto=thin  # Tell clang to produce llvm bitcode.
 
             # Miscellaneous flags.
